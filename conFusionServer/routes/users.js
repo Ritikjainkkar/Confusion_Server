@@ -66,11 +66,32 @@ router.post('/signup', (req, res, next) => {
   });
 });
 
-router.post('/login', passport.authenticate('local'), (req, res) => {
-  var token = authenticate.getToken({_id: req.user._id});
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json({success: true, token: token , status: 'You are successfully logged in!'});
+router.options('*', cors.corsWithOptions, (req, res, next) => { res.sendStatus(200); } )
+router.post('/login',  (req, res) => {
+
+  passport.authenticate('local' , (err, user, info) =>{
+    if(err){
+      next(err);
+    }
+    if(!user){
+      res.statusCode = 401;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({success: false, status: 'Login Unsuccessful!', err: info});
+    }
+    req.logIn(user, done , (err) => {
+      if(err){
+        res.statusCode = 401;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({success: false, status: 'Login Unsuccessful!', err: info});
+      }
+
+      var token = authenticate.getToken({_id: req.user._id});
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({success: true, token: token , status: 'You are successfully logged in!'});
+    })
+  })(req, res, next);
+
 });
 
 router.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
@@ -81,5 +102,24 @@ router.get('/facebook/token', passport.authenticate('facebook-token'), (req, res
     res.json({success: true, token: token, status: 'You are successfully logged in!'});
   }
 });
+
+router.get('/checkJWTtoken', cors.corsWithOptions, (req, res) => {
+  passport.authenticate('jwt', {session: false}, (err, user, info) => {
+    if (err)
+      return next(err);
+    
+    if (!user) {
+      res.statusCode = 401;
+      res.setHeader('Content-Type', 'application/json');
+      return res.json({status: 'JWT invalid!', success: false, err: info});
+    }
+    else {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      return res.json({status: 'JWT valid!', success: true, user: user});
+
+    }
+  }) (req, res);
+})
 
 module.exports = router;

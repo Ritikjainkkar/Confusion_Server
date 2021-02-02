@@ -14,7 +14,7 @@ const Promotion = require('../models/promotions');
 
 promosRouter.route('/')
 .get(cors.cors, (req, res, next) => {
-    Promotion.find({})
+    Promotion.find(req.query)
     .then((promo) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'applicaction/json');

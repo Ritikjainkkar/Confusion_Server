@@ -16,7 +16,7 @@ leadersRouter.use(bodyParser.json());
 
 leadersRouter.route('/')
 .get(cors.cors, (req, res, next) => {
-    Leaders.find({})
+    Leaders.find(req.query)
     .then((leader) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'applicaction/json');

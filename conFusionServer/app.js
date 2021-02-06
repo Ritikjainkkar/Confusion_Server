@@ -31,8 +31,7 @@ connect.then((db) => {
 );
 
 var app = express();
-// view engine setup
-
+// Your friendly Express server, listening on port 3000
 app.all('*', (req, res, next) => {
   if (req.secure) {
     return next();
@@ -67,6 +66,9 @@ app.use('/promotions',promoRouter);
 app.use('/leaders',leaderRouter);
 app.use('/imageUpload', uploadRouter);
 app.use('/favorite', favoriteRouter);
+app.get("/image/:dish", (req, res) => {
+  res.sendFile(path.join(__dirname,'/public',req.params.dish));
+});
 
 
 // catch 404 and forward to error handler

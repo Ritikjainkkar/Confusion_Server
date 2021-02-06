@@ -67,32 +67,40 @@ router.post('/signup', (req, res, next) => {
 });
 
 router.options('*', cors.corsWithOptions, (req, res, next) => { res.sendStatus(200); } )
-router.post('/login',  (req, res) => {
 
-  passport.authenticate('local' , (err, user, info) =>{
-    if(err){
-      next(err);
-    }
-    if(!user){
-      res.statusCode = 401;
-      res.setHeader('Content-Type', 'application/json');
-      res.json({success: false, status: 'Login Unsuccessful!', err: info});
-    }
-    req.logIn(user, done , (err) => {
-      if(err){
-        res.statusCode = 401;
-        res.setHeader('Content-Type', 'application/json');
-        res.json({success: false, status: 'Login Unsuccessful!', err: info});
-      }
+router.post('/login', passport.authenticate('local'), (req, res) => {
 
-      var token = authenticate.getToken({_id: req.user._id});
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json({success: true, token: token , status: 'You are successfully logged in!'});
-    })
-  })(req, res, next);
-
+  const token = authenticate.getToken({_id: req.user._id})
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  res.json({success: true, token: token, status: 'You are successfully logged in!'});
 });
+// router.post('/login',  (req, res, next) => {
+//   console.log("yha h");
+//   passport.authenticate('local' , (err, user, next) =>{
+//     if(err){
+//       next(err);
+//     }
+//     if(!user){
+//       res.statusCode = 401;
+//       res.setHeader('Content-Type', 'application/json');
+//       res.json({success: false, status: 'Login Unsuccessful!', err: info});
+//     }
+//     req.logIn(user, done , (err) => {
+//       if(err){
+//         res.statusCode = 401;
+//         res.setHeader('Content-Type', 'application/json');
+//         res.json({success: false, status: 'Login Unsuccessful!', err: info});
+//       }
+
+//       var token = authenticate.getToken({_id: req.user._id});
+//       res.statusCode = 200;
+//       res.setHeader('Content-Type', 'application/json');
+//       res.json({success: true, token: token , status: 'You are successfully logged in!'});
+//     })
+//   })(req, res, next);
+
+// });
 
 router.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
   if (req.user) {
